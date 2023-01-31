@@ -1,0 +1,1980 @@
+---
+title: "Scimago"
+output: html_document
+date: "2022-12-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Package
+
+```{r}
+library(tidyverse)
+```
+
+## Import Data
+
+```{r}
+scimago2021 <- read.csv("scimagojr 2021.csv", sep = ";")
+head(scimago2021)
+```
+
+```{r}
+glimpse(scimago2021)
+```
+
+```{r}
+unique(scimago2021$Type)
+unique(scimago2021$SJR.Best.Quartile)
+```
+
+```{r}
+sum(is.na(scimago2021))
+sum(is.null(scimago2021))
+```
+
+```{r}
+scimago2021 %>% filter(SJR.Best.Quartile == "-")
+```
+
+```{r}
+scimago2021 <- scimago2021 %>%
+  filter(SJR.Best.Quartile != "-")
+scimago2021
+```
+
+```{r}
+colnames(scimago2021)
+```
+
+```{r}
+scimago_data <- scimago2021[c('Rank', 'Sourceid', 'H.index', 'Total.Docs...3years.', 'Total.Refs.', 'Total.Cites..3years.',
+                              'Citable.Docs...3years.', 'Region', 'Coverage', 'SJR.Best.Quartile')]
+scimago_data
+```
+
+```{r}
+scimago_data <- scimago_data[c('Rank', 'H.index', 'Total.Docs...3years.', 'Total.Refs.', 'Total.Cites..3years.',
+                              'Citable.Docs...3years.', 'Region', 'SJR.Best.Quartile')]
+scimago_data
+```
+
+```{r}
+names(scimago_data) <- c('Rank', 'H_index', 'Total_Docs', 'Total_Refs', 'Total_Cites', 'Cites_Docs', 'Region', 'Quartile')
+scimago_data
+```
+
+```{r}
+scimago_year <- scimago_data[c('Sourceid', 'Coverage')]
+scimago_year
+```
+
+```{r}
+library(stringr)
+scimago_year$Comma <- str_count(scimago_year$Coverage, ",")
+scimago_year %>% arrange(desc(Comma))
+```
+
+```{r}
+unique(scimago_year$Comma)
+```
+
+```{r}
+year0 <- scimago_year[scimago_year$Comma==0,]
+year3 <- scimago_year[scimago_year$Comma==3,]
+year1 <- scimago_year[scimago_year$Comma==1,]
+year2 <- scimago_year[scimago_year$Comma==2,]
+year6 <- scimago_year[scimago_year$Comma==6,]
+year5 <- scimago_year[scimago_year$Comma==5,]
+year7 <- scimago_year[scimago_year$Comma==7,]
+year8 <- scimago_year[scimago_year$Comma==8,]
+year4 <- scimago_year[scimago_year$Comma==4,]
+year9 <- scimago_year[scimago_year$Comma==9,]
+year11 <- scimago_year[scimago_year$Comma==11,]
+year14 <- scimago_year[scimago_year$Comma==14,]
+year12 <- scimago_year[scimago_year$Comma==12,]
+year10 <- scimago_year[scimago_year$Comma==10,]
+year15 <- scimago_year[scimago_year$Comma==15,]
+year13 <- scimago_year[scimago_year$Comma==13,]
+year17 <- scimago_year[scimago_year$Comma==17,]
+year20 <- scimago_year[scimago_year$Comma==20,]
+year18 <- scimago_year[scimago_year$Comma==18,]
+year21 <- scimago_year[scimago_year$Comma==21,]
+year16 <- scimago_year[scimago_year$Comma==16,]
+year24 <- scimago_year[scimago_year$Comma==24,]
+year22 <- scimago_year[scimago_year$Comma==22,]
+year39 <- scimago_year[scimago_year$Comma==39,]
+```
+
+```{r}
+# 0 
+for (i in 1:nrow(year0)){
+    year0$Years[i] <- as.integer(substr(year0$Coverage[i], 6, 9))-as.integer(substr(year0$Coverage[i], 1, 4))
+}
+
+year0
+```
+
+```{r}
+library(splitstackshape)
+# 1
+year1 <- cSplit(year1, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year1)){
+  if(nchar(year1$Coverage_1[i])==9){
+    year1$Years[i] <- as.integer(substr(year1$Coverage_1[i], 6, 9))-as.integer(substr(year1$Coverage_1[i], 1, 4))
+  } else {
+    year1$Years[i] <- 1
+  }
+  if(nchar(year1$Coverage_2[i])==9){
+    year1$Years[i] <- year1$Years[i] + (as.integer(substr(year1$Coverage_2[i], 6, 9))-as.integer(substr(year1$Coverage_2[i], 1, 4)))
+  } else {
+    year1$Years[i] <- year1$Years[i] + 1
+  }
+}
+
+year1
+```
+
+```{r}
+year2 <- cSplit(year2, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year2)){
+  if(nchar(year2$Coverage_1[i])==9){
+    year2$Years[i] <- as.integer(substr(year2$Coverage_1[i], 6, 9))-as.integer(substr(year2$Coverage_1[i], 1, 4))
+  } else {
+    year2$Years[i] <- 1
+  }
+  if(nchar(year2$Coverage_2[i])==9){
+    year2$Years[i] <- year2$Years[i] + (as.integer(substr(year2$Coverage_2[i], 6, 9))-as.integer(substr(year2$Coverage_2[i], 1, 4)))
+  } else {
+    year2$Years[i] <- year2$Years[i] + 1
+  }
+  if(nchar(year2$Coverage_3[i])==9){
+    year2$Years[i] <- year2$Years[i] + (as.integer(substr(year2$Coverage_3[i], 6, 9))-as.integer(substr(year2$Coverage_3[i], 1, 4)))
+  } else {
+    year2$Years[i] <- year2$Years[i] + 1
+  }
+}
+year2
+```
+
+```{r}
+# 3
+year3 <- cSplit(year3, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year3)){
+  if(nchar(year3$Coverage_1[i])==9){
+    year3$Years[i] <- as.integer(substr(year3$Coverage_1[i], 6, 9))-as.integer(substr(year3$Coverage_1[i], 1, 4))
+  } else {
+    year3$Years[i] <- 1
+  }
+  if(nchar(year3$Coverage_2[i])==9){
+    year3$Years[i] <- year3$Years[i] + (as.integer(substr(year3$Coverage_2[i], 6, 9))-as.integer(substr(year3$Coverage_2[i], 1, 4)))
+  } else {
+    year3$Years[i] <- year3$Years[i] + 1
+  }
+  if(nchar(year3$Coverage_3[i])==9){
+    year3$Years[i] <- year3$Years[i] + (as.integer(substr(year3$Coverage_3[i], 6, 9))-as.integer(substr(year3$Coverage_3[i], 1, 4)))
+  } else {
+    year3$Years[i] <- year3$Years[i] + 1
+  }
+  if(nchar(year3$Coverage_4[i])==9){
+    year3$Years[i] <- year3$Years[i] + (as.integer(substr(year3$Coverage_4[i], 6, 9))-as.integer(substr(year3$Coverage_4[i], 1, 4)))
+  } else {
+    year3$Years[i] <- year3$Years[i] + 1
+  }
+}
+year3
+```
+
+```{r}
+# 4
+year4 <- cSplit(year4, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year4)){
+  if(nchar(year4$Coverage_1[i])==9){
+    year4$Years[i] <- as.integer(substr(year4$Coverage_1[i], 6, 9))-as.integer(substr(year4$Coverage_1[i], 1, 4))
+  } else {
+    year4$Years[i] <- 1
+  }
+  if(nchar(year4$Coverage_2[i])==9){
+    year4$Years[i] <- year4$Years[i] + (as.integer(substr(year4$Coverage_2[i], 6, 9))-as.integer(substr(year4$Coverage_2[i], 1, 4)))
+  } else {
+    year4$Years[i] <- year4$Years[i] + 1
+  }
+  if(nchar(year4$Coverage_3[i])==9){
+    year4$Years[i] <- year4$Years[i] + (as.integer(substr(year4$Coverage_3[i], 6, 9))-as.integer(substr(year4$Coverage_3[i], 1, 4)))
+  } else {
+    year4$Years[i] <- year4$Years[i] + 1
+  }
+  if(nchar(year4$Coverage_4[i])==9){
+    year4$Years[i] <- year4$Years[i] + (as.integer(substr(year4$Coverage_4[i], 6, 9))-as.integer(substr(year4$Coverage_4[i], 1, 4)))
+  } else {
+    year4$Years[i] <- year4$Years[i] + 1
+  }
+  if(nchar(year4$Coverage_5[i])==9){
+    year4$Years[i] <- year4$Years[i] + (as.integer(substr(year4$Coverage_5[i], 6, 9))-as.integer(substr(year4$Coverage_5[i], 1, 4)))
+  } else {
+    year4$Years[i] <- year4$Years[i] + 1
+  }
+}
+year4
+```
+
+```{r}
+# 5
+year5 <- cSplit(year5, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year5)){
+  if(nchar(year5$Coverage_1[i])==9){
+    year5$Years[i] <- as.integer(substr(year5$Coverage_1[i], 6, 9))-as.integer(substr(year5$Coverage_1[i], 1, 4))
+  } else {
+    year5$Years[i] <- 1
+  }
+  if(nchar(year5$Coverage_2[i])==9){
+    year5$Years[i] <- year5$Years[i] + (as.integer(substr(year5$Coverage_2[i], 6, 9))-as.integer(substr(year5$Coverage_2[i], 1, 4)))
+  } else {
+    year5$Years[i] <- year5$Years[i] + 1
+  }
+  if(nchar(year5$Coverage_3[i])==9){
+    year5$Years[i] <- year5$Years[i] + (as.integer(substr(year5$Coverage_3[i], 6, 9))-as.integer(substr(year5$Coverage_3[i], 1, 4)))
+  } else {
+    year5$Years[i] <- year5$Years[i] + 1
+  }
+  if(nchar(year5$Coverage_4[i])==9){
+    year5$Years[i] <- year5$Years[i] + (as.integer(substr(year5$Coverage_4[i], 6, 9))-as.integer(substr(year5$Coverage_4[i], 1, 4)))
+  } else {
+    year5$Years[i] <- year5$Years[i] + 1
+  }
+  if(nchar(year5$Coverage_5[i])==9){
+    year5$Years[i] <- year5$Years[i] + (as.integer(substr(year5$Coverage_5[i], 6, 9))-as.integer(substr(year5$Coverage_5[i], 1, 4)))
+  } else {
+    year5$Years[i] <- year5$Years[i] + 1
+  }
+  if(nchar(year5$Coverage_6[i])==9){
+    year5$Years[i] <- year5$Years[i] + (as.integer(substr(year5$Coverage_6[i], 6, 9))-as.integer(substr(year5$Coverage_6[i], 1, 4)))
+  } else {
+    year5$Years[i] <- year5$Years[i] + 1
+  }
+}
+year5
+```
+
+```{r}
+# 6
+year6 <- cSplit(year6, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year6)){
+  if(nchar(year6$Coverage_1[i])==9){
+    year6$Years[i] <- as.integer(substr(year6$Coverage_1[i], 6, 9))-as.integer(substr(year6$Coverage_1[i], 1, 4))
+  } else {
+    year6$Years[i] <- 1
+  }
+  if(nchar(year6$Coverage_2[i])==9){
+    year6$Years[i] <- year6$Years[i] + (as.integer(substr(year6$Coverage_2[i], 6, 9))-as.integer(substr(year6$Coverage_2[i], 1, 4)))
+  } else {
+    year6$Years[i] <- year6$Years[i] + 1
+  }
+  if(nchar(year6$Coverage_3[i])==9){
+    year6$Years[i] <- year6$Years[i] + (as.integer(substr(year6$Coverage_3[i], 6, 9))-as.integer(substr(year6$Coverage_3[i], 1, 4)))
+  } else {
+    year6$Years[i] <- year6$Years[i] + 1
+  }
+  if(nchar(year6$Coverage_4[i])==9){
+    year6$Years[i] <- year6$Years[i] + (as.integer(substr(year6$Coverage_4[i], 6, 9))-as.integer(substr(year6$Coverage_4[i], 1, 4)))
+  } else {
+    year6$Years[i] <- year6$Years[i] + 1
+  }
+  if(nchar(year6$Coverage_5[i])==9){
+    year6$Years[i] <- year6$Years[i] + (as.integer(substr(year6$Coverage_5[i], 6, 9))-as.integer(substr(year6$Coverage_5[i], 1, 4)))
+  } else {
+    year6$Years[i] <- year6$Years[i] + 1
+  }
+  if(nchar(year6$Coverage_6[i])==9){
+    year6$Years[i] <- year6$Years[i] + (as.integer(substr(year6$Coverage_6[i], 6, 9))-as.integer(substr(year6$Coverage_6[i], 1, 4)))
+  } else {
+    year6$Years[i] <- year6$Years[i] + 1
+  }
+  if(nchar(year6$Coverage_7[i])==9){
+    year6$Years[i] <- year6$Years[i] + (as.integer(substr(year6$Coverage_7[i], 6, 9))-as.integer(substr(year6$Coverage_7[i], 1, 4)))
+  } else {
+    year6$Years[i] <- year6$Years[i] + 1
+  }
+}
+year6
+```
+
+```{r}
+# 7
+year7 <- cSplit(year7, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year7)){
+  if(nchar(year7$Coverage_1[i])==9){
+    year7$Years[i] <- as.integer(substr(year7$Coverage_1[i], 6, 9))-as.integer(substr(year7$Coverage_1[i], 1, 4))
+  } else {
+    year7$Years[i] <- 1
+  }
+  if(nchar(year7$Coverage_2[i])==9){
+    year7$Years[i] <- year7$Years[i] + (as.integer(substr(year7$Coverage_2[i], 6, 9))-as.integer(substr(year7$Coverage_2[i], 1, 4)))
+  } else {
+    year7$Years[i] <- year7$Years[i] + 1
+  }
+  if(nchar(year7$Coverage_3[i])==9){
+    year7$Years[i] <- year7$Years[i] + (as.integer(substr(year7$Coverage_3[i], 6, 9))-as.integer(substr(year7$Coverage_3[i], 1, 4)))
+  } else {
+    year7$Years[i] <- year7$Years[i] + 1
+  }
+  if(nchar(year7$Coverage_4[i])==9){
+    year7$Years[i] <- year7$Years[i] + (as.integer(substr(year7$Coverage_4[i], 6, 9))-as.integer(substr(year7$Coverage_4[i], 1, 4)))
+  } else {
+    year7$Years[i] <- year7$Years[i] + 1
+  }
+  if(nchar(year7$Coverage_5[i])==9){
+    year7$Years[i] <- year7$Years[i] + (as.integer(substr(year7$Coverage_5[i], 6, 9))-as.integer(substr(year7$Coverage_5[i], 1, 4)))
+  } else {
+    year7$Years[i] <- year7$Years[i] + 1
+  }
+  if(nchar(year7$Coverage_6[i])==9){
+    year7$Years[i] <- year7$Years[i] + (as.integer(substr(year7$Coverage_6[i], 6, 9))-as.integer(substr(year7$Coverage_6[i], 1, 4)))
+  } else {
+    year7$Years[i] <- year7$Years[i] + 1
+  }
+  if(nchar(year7$Coverage_7[i])==9){
+    year7$Years[i] <- year7$Years[i] + (as.integer(substr(year7$Coverage_7[i], 6, 9))-as.integer(substr(year7$Coverage_7[i], 1, 4)))
+  } else {
+    year7$Years[i] <- year7$Years[i] + 1
+  }
+  if(nchar(year7$Coverage_8[i])==9){
+    year7$Years[i] <- year7$Years[i] + (as.integer(substr(year7$Coverage_8[i], 6, 9))-as.integer(substr(year7$Coverage_8[i], 1, 4)))
+  } else {
+    year7$Years[i] <- year7$Years[i] + 1
+  }
+}
+year7
+```
+
+```{r}
+# 8
+year8 <- cSplit(year8, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year8)){
+  if(nchar(year8$Coverage_1[i])==9){
+    year8$Years[i] <- as.integer(substr(year8$Coverage_1[i], 6, 9))-as.integer(substr(year8$Coverage_1[i], 1, 4))
+  } else {
+    year8$Years[i] <- 1
+  }
+  if(nchar(year8$Coverage_2[i])==9){
+    year8$Years[i] <- year8$Years[i] + (as.integer(substr(year8$Coverage_2[i], 6, 9))-as.integer(substr(year8$Coverage_2[i], 1, 4)))
+  } else {
+    year8$Years[i] <- year8$Years[i] + 1
+  }
+  if(nchar(year8$Coverage_3[i])==9){
+    year8$Years[i] <- year8$Years[i] + (as.integer(substr(year8$Coverage_3[i], 6, 9))-as.integer(substr(year8$Coverage_3[i], 1, 4)))
+  } else {
+    year8$Years[i] <- year8$Years[i] + 1
+  }
+  if(nchar(year8$Coverage_4[i])==9){
+    year8$Years[i] <- year8$Years[i] + (as.integer(substr(year8$Coverage_4[i], 6, 9))-as.integer(substr(year8$Coverage_4[i], 1, 4)))
+  } else {
+    year8$Years[i] <- year8$Years[i] + 1
+  }
+  if(nchar(year8$Coverage_5[i])==9){
+    year8$Years[i] <- year8$Years[i] + (as.integer(substr(year8$Coverage_5[i], 6, 9))-as.integer(substr(year8$Coverage_5[i], 1, 4)))
+  } else {
+    year8$Years[i] <- year8$Years[i] + 1
+  }
+  if(nchar(year8$Coverage_6[i])==9){
+    year8$Years[i] <- year8$Years[i] + (as.integer(substr(year8$Coverage_6[i], 6, 9))-as.integer(substr(year8$Coverage_6[i], 1, 4)))
+  } else {
+    year8$Years[i] <- year8$Years[i] + 1
+  }
+  if(nchar(year8$Coverage_7[i])==9){
+    year8$Years[i] <- year8$Years[i] + (as.integer(substr(year8$Coverage_7[i], 6, 9))-as.integer(substr(year8$Coverage_7[i], 1, 4)))
+  } else {
+    year8$Years[i] <- year8$Years[i] + 1
+  }
+  if(nchar(year8$Coverage_8[i])==9){
+    year8$Years[i] <- year8$Years[i] + (as.integer(substr(year8$Coverage_8[i], 6, 9))-as.integer(substr(year8$Coverage_8[i], 1, 4)))
+  } else {
+    year8$Years[i] <- year8$Years[i] + 1
+  }
+  if(nchar(year8$Coverage_9[i])==9){
+    year8$Years[i] <- year8$Years[i] + (as.integer(substr(year8$Coverage_9[i], 6, 9))-as.integer(substr(year8$Coverage_9[i], 1, 4)))
+  } else {
+    year8$Years[i] <- year8$Years[i] + 1
+  }
+}
+year8
+```
+
+```{r}
+# 9
+year9 <- cSplit(year9, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year9)){
+  if(nchar(year9$Coverage_01[i])==9){
+    year9$Years[i] <- as.integer(substr(year9$Coverage_01[i], 6, 9))-as.integer(substr(year9$Coverage_01[i], 1, 4))
+  } else {
+    year9$Years[i] <- 1
+  }
+  if(nchar(year9$Coverage_02[i])==9){
+    year9$Years[i] <- year9$Years[i] + (as.integer(substr(year9$Coverage_02[i], 6, 9))-as.integer(substr(year9$Coverage_02[i], 1, 4)))
+  } else {
+    year9$Years[i] <- year9$Years[i] + 1
+  }
+  if(nchar(year9$Coverage_03[i])==9){
+    year9$Years[i] <- year9$Years[i] + (as.integer(substr(year9$Coverage_03[i], 6, 9))-as.integer(substr(year9$Coverage_03[i], 1, 4)))
+  } else {
+    year9$Years[i] <- year9$Years[i] + 1
+  }
+  if(nchar(year9$Coverage_04[i])==9){
+    year9$Years[i] <- year9$Years[i] + (as.integer(substr(year9$Coverage_04[i], 6, 9))-as.integer(substr(year9$Coverage_04[i], 1, 4)))
+  } else {
+    year9$Years[i] <- year9$Years[i] + 1
+  }
+  if(nchar(year9$Coverage_05[i])==9){
+    year9$Years[i] <- year9$Years[i] + (as.integer(substr(year9$Coverage_05[i], 6, 9))-as.integer(substr(year9$Coverage_05[i], 1, 4)))
+  } else {
+    year9$Years[i] <- year9$Years[i] + 1
+  }
+  if(nchar(year9$Coverage_06[i])==9){
+    year9$Years[i] <- year9$Years[i] + (as.integer(substr(year9$Coverage_06[i], 6, 9))-as.integer(substr(year9$Coverage_06[i], 1, 4)))
+  } else {
+    year9$Years[i] <- year9$Years[i] + 1
+  }
+  if(nchar(year9$Coverage_07[i])==9){
+    year9$Years[i] <- year9$Years[i] + (as.integer(substr(year9$Coverage_07[i], 6, 9))-as.integer(substr(year9$Coverage_07[i], 1, 4)))
+  } else {
+    year9$Years[i] <- year9$Years[i] + 1
+  }
+  if(nchar(year9$Coverage_08[i])==9){
+    year9$Years[i] <- year9$Years[i] + (as.integer(substr(year9$Coverage_08[i], 6, 9))-as.integer(substr(year9$Coverage_08[i], 1, 4)))
+  } else {
+    year9$Years[i] <- year9$Years[i] + 1
+  }
+  if(nchar(year9$Coverage_09[i])==9){
+    year9$Years[i] <- year9$Years[i] + (as.integer(substr(year9$Coverage_09[i], 6, 9))-as.integer(substr(year9$Coverage_09[i], 1, 4)))
+  } else {
+    year9$Years[i] <- year9$Years[i] + 1
+  }
+  if(nchar(year9$Coverage_10[i])==9){
+    year9$Years[i] <- year9$Years[i] + (as.integer(substr(year9$Coverage_10[i], 6, 9))-as.integer(substr(year9$Coverage_10[i], 1, 4)))
+  } else {
+    year9$Years[i] <- year9$Years[i] + 1
+  }
+}
+year9
+```
+
+```{r}
+# 10
+year10 <- cSplit(year10, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year10)){
+  if(nchar(year10$Coverage_01[i])==9){
+    year10$Years[i] <- as.integer(substr(year10$Coverage_01[i], 6, 9))-as.integer(substr(year10$Coverage_01[i], 1, 4))
+  } else {
+    year10$Years[i] <- 1
+  }
+  if(nchar(year10$Coverage_02[i])==9){
+    year10$Years[i] <- year10$Years[i] + (as.integer(substr(year10$Coverage_02[i], 6, 9))-as.integer(substr(year10$Coverage_02[i], 1, 4)))
+  } else {
+    year10$Years[i] <- year10$Years[i] + 1
+  }
+  if(nchar(year10$Coverage_03[i])==9){
+    year10$Years[i] <- year10$Years[i] + (as.integer(substr(year10$Coverage_03[i], 6, 9))-as.integer(substr(year10$Coverage_03[i], 1, 4)))
+  } else {
+    year10$Years[i] <- year10$Years[i] + 1
+  }
+  if(nchar(year10$Coverage_04[i])==9){
+    year10$Years[i] <- year10$Years[i] + (as.integer(substr(year10$Coverage_04[i], 6, 9))-as.integer(substr(year10$Coverage_04[i], 1, 4)))
+  } else {
+    year10$Years[i] <- year10$Years[i] + 1
+  }
+  if(nchar(year10$Coverage_05[i])==9){
+    year10$Years[i] <- year10$Years[i] + (as.integer(substr(year10$Coverage_05[i], 6, 9))-as.integer(substr(year10$Coverage_05[i], 1, 4)))
+  } else {
+    year10$Years[i] <- year10$Years[i] + 1
+  }
+  if(nchar(year10$Coverage_06[i])==9){
+    year10$Years[i] <- year10$Years[i] + (as.integer(substr(year10$Coverage_06[i], 6, 9))-as.integer(substr(year10$Coverage_06[i], 1, 4)))
+  } else {
+    year10$Years[i] <- year10$Years[i] + 1
+  }
+  if(nchar(year10$Coverage_07[i])==9){
+    year10$Years[i] <- year10$Years[i] + (as.integer(substr(year10$Coverage_07[i], 6, 9))-as.integer(substr(year10$Coverage_07[i], 1, 4)))
+  } else {
+    year10$Years[i] <- year10$Years[i] + 1
+  }
+  if(nchar(year10$Coverage_08[i])==9){
+    year10$Years[i] <- year10$Years[i] + (as.integer(substr(year10$Coverage_08[i], 6, 9))-as.integer(substr(year10$Coverage_08[i], 1, 4)))
+  } else {
+    year10$Years[i] <- year10$Years[i] + 1
+  }
+  if(nchar(year10$Coverage_09[i])==9){
+    year10$Years[i] <- year10$Years[i] + (as.integer(substr(year10$Coverage_09[i], 6, 9))-as.integer(substr(year10$Coverage_09[i], 1, 4)))
+  } else {
+    year10$Years[i] <- year10$Years[i] + 1
+  }
+  if(nchar(year10$Coverage_10[i])==9){
+    year10$Years[i] <- year10$Years[i] + (as.integer(substr(year10$Coverage_10[i], 6, 9))-as.integer(substr(year10$Coverage_10[i], 1, 4)))
+  } else {
+    year10$Years[i] <- year10$Years[i] + 1
+  }
+  if(nchar(year10$Coverage_11[i])==9){
+    year10$Years[i] <- year10$Years[i] + (as.integer(substr(year10$Coverage_11[i], 6, 9))-as.integer(substr(year10$Coverage_11[i], 1, 4)))
+  } else {
+    year10$Years[i] <- year10$Years[i] + 1
+  }
+}
+year10
+```
+
+```{r}
+# 11
+year11 <- cSplit(year11, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year11)){
+  if(nchar(year11$Coverage_01[i])==9){
+    year11$Years[i] <- as.integer(substr(year11$Coverage_01[i], 6, 9))-as.integer(substr(year11$Coverage_01[i], 1, 4))
+  } else {
+    year11$Years[i] <- 1
+  }
+  if(nchar(year11$Coverage_02[i])==9){
+    year11$Years[i] <- year11$Years[i] + (as.integer(substr(year11$Coverage_02[i], 6, 9))-as.integer(substr(year11$Coverage_02[i], 1, 4)))
+  } else {
+    year11$Years[i] <- year11$Years[i] + 1
+  }
+  if(nchar(year11$Coverage_03[i])==9){
+    year11$Years[i] <- year11$Years[i] + (as.integer(substr(year11$Coverage_03[i], 6, 9))-as.integer(substr(year11$Coverage_03[i], 1, 4)))
+  } else {
+    year11$Years[i] <- year11$Years[i] + 1
+  }
+  if(nchar(year11$Coverage_04[i])==9){
+    year11$Years[i] <- year11$Years[i] + (as.integer(substr(year11$Coverage_04[i], 6, 9))-as.integer(substr(year11$Coverage_04[i], 1, 4)))
+  } else {
+    year11$Years[i] <- year11$Years[i] + 1
+  }
+  if(nchar(year11$Coverage_05[i])==9){
+    year11$Years[i] <- year11$Years[i] + (as.integer(substr(year11$Coverage_05[i], 6, 9))-as.integer(substr(year11$Coverage_05[i], 1, 4)))
+  } else {
+    year11$Years[i] <- year11$Years[i] + 1
+  }
+  if(nchar(year11$Coverage_06[i])==9){
+    year11$Years[i] <- year11$Years[i] + (as.integer(substr(year11$Coverage_06[i], 6, 9))-as.integer(substr(year11$Coverage_06[i], 1, 4)))
+  } else {
+    year11$Years[i] <- year11$Years[i] + 1
+  }
+  if(nchar(year11$Coverage_07[i])==9){
+    year11$Years[i] <- year11$Years[i] + (as.integer(substr(year11$Coverage_07[i], 6, 9))-as.integer(substr(year11$Coverage_07[i], 1, 4)))
+  } else {
+    year11$Years[i] <- year11$Years[i] + 1
+  }
+  if(nchar(year11$Coverage_08[i])==9){
+    year11$Years[i] <- year11$Years[i] + (as.integer(substr(year11$Coverage_08[i], 6, 9))-as.integer(substr(year11$Coverage_08[i], 1, 4)))
+  } else {
+    year11$Years[i] <- year11$Years[i] + 1
+  }
+  if(nchar(year11$Coverage_09[i])==9){
+    year11$Years[i] <- year11$Years[i] + (as.integer(substr(year11$Coverage_09[i], 6, 9))-as.integer(substr(year11$Coverage_09[i], 1, 4)))
+  } else {
+    year11$Years[i] <- year11$Years[i] + 1
+  }
+  if(nchar(year11$Coverage_10[i])==9){
+    year11$Years[i] <- year11$Years[i] + (as.integer(substr(year11$Coverage_10[i], 6, 9))-as.integer(substr(year11$Coverage_10[i], 1, 4)))
+  } else {
+    year11$Years[i] <- year11$Years[i] + 1
+  }
+  if(nchar(year11$Coverage_11[i])==9){
+    year11$Years[i] <- year11$Years[i] + (as.integer(substr(year11$Coverage_11[i], 6, 9))-as.integer(substr(year11$Coverage_11[i], 1, 4)))
+  } else {
+    year11$Years[i] <- year11$Years[i] + 1
+  }
+  if(nchar(year11$Coverage_12[i])==9){
+    year11$Years[i] <- year11$Years[i] + (as.integer(substr(year11$Coverage_12[i], 6, 9))-as.integer(substr(year11$Coverage_12[i], 1, 4)))
+  } else {
+    year11$Years[i] <- year11$Years[i] + 1
+  }
+}
+year11
+```
+
+```{r}
+# 12
+year12 <- cSplit(year12, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year12)){
+  if(nchar(year12$Coverage_01[i])==9){
+    year12$Years[i] <- as.integer(substr(year12$Coverage_01[i], 6, 9))-as.integer(substr(year12$Coverage_01[i], 1, 4))
+  } else {
+    year12$Years[i] <- 1
+  }
+  if(nchar(year12$Coverage_02[i])==9){
+    year12$Years[i] <- year12$Years[i] + (as.integer(substr(year12$Coverage_02[i], 6, 9))-as.integer(substr(year12$Coverage_02[i], 1, 4)))
+  } else {
+    year12$Years[i] <- year12$Years[i] + 1
+  }
+  if(nchar(year12$Coverage_03[i])==9){
+    year12$Years[i] <- year12$Years[i] + (as.integer(substr(year12$Coverage_03[i], 6, 9))-as.integer(substr(year12$Coverage_03[i], 1, 4)))
+  } else {
+    year12$Years[i] <- year12$Years[i] + 1
+  }
+  if(nchar(year12$Coverage_04[i])==9){
+    year12$Years[i] <- year12$Years[i] + (as.integer(substr(year12$Coverage_04[i], 6, 9))-as.integer(substr(year12$Coverage_04[i], 1, 4)))
+  } else {
+    year12$Years[i] <- year12$Years[i] + 1
+  }
+  if(nchar(year12$Coverage_05[i])==9){
+    year12$Years[i] <- year12$Years[i] + (as.integer(substr(year12$Coverage_05[i], 6, 9))-as.integer(substr(year12$Coverage_05[i], 1, 4)))
+  } else {
+    year12$Years[i] <- year12$Years[i] + 1
+  }
+  if(nchar(year12$Coverage_06[i])==9){
+    year12$Years[i] <- year12$Years[i] + (as.integer(substr(year12$Coverage_06[i], 6, 9))-as.integer(substr(year12$Coverage_06[i], 1, 4)))
+  } else {
+    year12$Years[i] <- year12$Years[i] + 1
+  }
+  if(nchar(year12$Coverage_07[i])==9){
+    year12$Years[i] <- year12$Years[i] + (as.integer(substr(year12$Coverage_07[i], 6, 9))-as.integer(substr(year12$Coverage_07[i], 1, 4)))
+  } else {
+    year12$Years[i] <- year12$Years[i] + 1
+  }
+  if(nchar(year12$Coverage_08[i])==9){
+    year12$Years[i] <- year12$Years[i] + (as.integer(substr(year12$Coverage_08[i], 6, 9))-as.integer(substr(year12$Coverage_08[i], 1, 4)))
+  } else {
+    year12$Years[i] <- year12$Years[i] + 1
+  }
+  if(nchar(year12$Coverage_09[i])==9){
+    year12$Years[i] <- year12$Years[i] + (as.integer(substr(year12$Coverage_09[i], 6, 9))-as.integer(substr(year12$Coverage_09[i], 1, 4)))
+  } else {
+    year12$Years[i] <- year12$Years[i] + 1
+  }
+  if(nchar(year12$Coverage_10[i])==9){
+    year12$Years[i] <- year12$Years[i] + (as.integer(substr(year12$Coverage_10[i], 6, 9))-as.integer(substr(year12$Coverage_10[i], 1, 4)))
+  } else {
+    year12$Years[i] <- year12$Years[i] + 1
+  }
+  if(nchar(year12$Coverage_11[i])==9){
+    year12$Years[i] <- year12$Years[i] + (as.integer(substr(year12$Coverage_11[i], 6, 9))-as.integer(substr(year12$Coverage_11[i], 1, 4)))
+  } else {
+    year12$Years[i] <- year12$Years[i] + 1
+  }
+  if(nchar(year12$Coverage_12[i])==9){
+    year12$Years[i] <- year12$Years[i] + (as.integer(substr(year12$Coverage_12[i], 6, 9))-as.integer(substr(year12$Coverage_12[i], 1, 4)))
+  } else {
+    year12$Years[i] <- year12$Years[i] + 1
+  }
+  if(nchar(year12$Coverage_13[i])==9){
+    year12$Years[i] <- year12$Years[i] + (as.integer(substr(year12$Coverage_13[i], 6, 9))-as.integer(substr(year12$Coverage_13[i], 1, 4)))
+  } else {
+    year12$Years[i] <- year12$Years[i] + 1
+  }
+}
+year12
+```
+
+```{r}
+# 13
+year13 <- cSplit(year13, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year13)){
+  if(nchar(year13$Coverage_01[i])==9){
+    year13$Years[i] <- as.integer(substr(year13$Coverage_01[i], 6, 9))-as.integer(substr(year13$Coverage_01[i], 1, 4))
+  } else {
+    year13$Years[i] <- 1
+  }
+  if(nchar(year13$Coverage_02[i])==9){
+    year13$Years[i] <- year13$Years[i] + (as.integer(substr(year13$Coverage_02[i], 6, 9))-as.integer(substr(year13$Coverage_02[i], 1, 4)))
+  } else {
+    year13$Years[i] <- year13$Years[i] + 1
+  }
+  if(nchar(year13$Coverage_03[i])==9){
+    year13$Years[i] <- year13$Years[i] + (as.integer(substr(year13$Coverage_03[i], 6, 9))-as.integer(substr(year13$Coverage_03[i], 1, 4)))
+  } else {
+    year13$Years[i] <- year13$Years[i] + 1
+  }
+  if(nchar(year13$Coverage_04[i])==9){
+    year13$Years[i] <- year13$Years[i] + (as.integer(substr(year13$Coverage_04[i], 6, 9))-as.integer(substr(year13$Coverage_04[i], 1, 4)))
+  } else {
+    year13$Years[i] <- year13$Years[i] + 1
+  }
+  if(nchar(year13$Coverage_05[i])==9){
+    year13$Years[i] <- year13$Years[i] + (as.integer(substr(year13$Coverage_05[i], 6, 9))-as.integer(substr(year13$Coverage_05[i], 1, 4)))
+  } else {
+    year13$Years[i] <- year13$Years[i] + 1
+  }
+  if(nchar(year13$Coverage_06[i])==9){
+    year13$Years[i] <- year13$Years[i] + (as.integer(substr(year13$Coverage_06[i], 6, 9))-as.integer(substr(year13$Coverage_06[i], 1, 4)))
+  } else {
+    year13$Years[i] <- year13$Years[i] + 1
+  }
+  if(nchar(year13$Coverage_07[i])==9){
+    year13$Years[i] <- year13$Years[i] + (as.integer(substr(year13$Coverage_07[i], 6, 9))-as.integer(substr(year13$Coverage_07[i], 1, 4)))
+  } else {
+    year13$Years[i] <- year13$Years[i] + 1
+  }
+  if(nchar(year13$Coverage_08[i])==9){
+    year13$Years[i] <- year13$Years[i] + (as.integer(substr(year13$Coverage_08[i], 6, 9))-as.integer(substr(year13$Coverage_08[i], 1, 4)))
+  } else {
+    year13$Years[i] <- year13$Years[i] + 1
+  }
+  if(nchar(year13$Coverage_09[i])==9){
+    year13$Years[i] <- year13$Years[i] + (as.integer(substr(year13$Coverage_09[i], 6, 9))-as.integer(substr(year13$Coverage_09[i], 1, 4)))
+  } else {
+    year13$Years[i] <- year13$Years[i] + 1
+  }
+  if(nchar(year13$Coverage_10[i])==9){
+    year13$Years[i] <- year13$Years[i] + (as.integer(substr(year13$Coverage_10[i], 6, 9))-as.integer(substr(year13$Coverage_10[i], 1, 4)))
+  } else {
+    year13$Years[i] <- year13$Years[i] + 1
+  }
+  if(nchar(year13$Coverage_11[i])==9){
+    year13$Years[i] <- year13$Years[i] + (as.integer(substr(year13$Coverage_11[i], 6, 9))-as.integer(substr(year13$Coverage_11[i], 1, 4)))
+  } else {
+    year13$Years[i] <- year13$Years[i] + 1
+  }
+  if(nchar(year13$Coverage_12[i])==9){
+    year13$Years[i] <- year13$Years[i] + (as.integer(substr(year13$Coverage_12[i], 6, 9))-as.integer(substr(year13$Coverage_12[i], 1, 4)))
+  } else {
+    year13$Years[i] <- year13$Years[i] + 1
+  }
+  if(nchar(year13$Coverage_13[i])==9){
+    year13$Years[i] <- year13$Years[i] + (as.integer(substr(year13$Coverage_13[i], 6, 9))-as.integer(substr(year13$Coverage_13[i], 1, 4)))
+  } else {
+    year13$Years[i] <- year13$Years[i] + 1
+  }
+  if(nchar(year13$Coverage_14[i])==9){
+    year13$Years[i] <- year13$Years[i] + (as.integer(substr(year13$Coverage_14[i], 6, 9))-as.integer(substr(year13$Coverage_14[i], 1, 4)))
+  } else {
+    year13$Years[i] <- year13$Years[i] + 1
+  }
+}
+year13
+```
+
+```{r}
+# 14
+year14 <- cSplit(year14, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year14)){
+  if(nchar(year14$Coverage_01[i])==9){
+    year14$Years[i] <- as.integer(substr(year14$Coverage_01[i], 6, 9))-as.integer(substr(year14$Coverage_01[i], 1, 4))
+  } else {
+    year14$Years[i] <- 1
+  }
+  if(nchar(year14$Coverage_02[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_02[i], 6, 9))-as.integer(substr(year14$Coverage_02[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+  if(nchar(year14$Coverage_03[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_03[i], 6, 9))-as.integer(substr(year14$Coverage_03[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+  if(nchar(year14$Coverage_04[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_04[i], 6, 9))-as.integer(substr(year14$Coverage_04[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+  if(nchar(year14$Coverage_05[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_05[i], 6, 9))-as.integer(substr(year14$Coverage_05[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+  if(nchar(year14$Coverage_06[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_06[i], 6, 9))-as.integer(substr(year14$Coverage_06[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+  if(nchar(year14$Coverage_07[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_07[i], 6, 9))-as.integer(substr(year14$Coverage_07[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+  if(nchar(year14$Coverage_08[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_08[i], 6, 9))-as.integer(substr(year14$Coverage_08[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+  if(nchar(year14$Coverage_09[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_09[i], 6, 9))-as.integer(substr(year14$Coverage_09[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+  if(nchar(year14$Coverage_10[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_10[i], 6, 9))-as.integer(substr(year14$Coverage_10[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+  if(nchar(year14$Coverage_11[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_11[i], 6, 9))-as.integer(substr(year14$Coverage_11[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+  if(nchar(year14$Coverage_12[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_12[i], 6, 9))-as.integer(substr(year14$Coverage_12[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+  if(nchar(year14$Coverage_13[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_13[i], 6, 9))-as.integer(substr(year14$Coverage_13[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+  if(nchar(year14$Coverage_14[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_14[i], 6, 9))-as.integer(substr(year14$Coverage_14[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+  if(nchar(year14$Coverage_15[i])==9){
+    year14$Years[i] <- year14$Years[i] + (as.integer(substr(year14$Coverage_15[i], 6, 9))-as.integer(substr(year14$Coverage_15[i], 1, 4)))
+  } else {
+    year14$Years[i] <- year14$Years[i] + 1
+  }
+}
+year14
+```
+
+```{r}
+# 15
+year15 <- cSplit(year15, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year15)){
+  if(nchar(year15$Coverage_01[i])==9){
+    year15$Years[i] <- as.integer(substr(year15$Coverage_01[i], 6, 9))-as.integer(substr(year15$Coverage_01[i], 1, 4))
+  } else {
+    year15$Years[i] <- 1
+  }
+  if(nchar(year15$Coverage_02[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_02[i], 6, 9))-as.integer(substr(year15$Coverage_02[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_03[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_03[i], 6, 9))-as.integer(substr(year15$Coverage_03[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_04[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_04[i], 6, 9))-as.integer(substr(year15$Coverage_04[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_05[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_05[i], 6, 9))-as.integer(substr(year15$Coverage_05[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_06[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_06[i], 6, 9))-as.integer(substr(year15$Coverage_06[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_07[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_07[i], 6, 9))-as.integer(substr(year15$Coverage_07[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_08[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_08[i], 6, 9))-as.integer(substr(year15$Coverage_08[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_09[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_09[i], 6, 9))-as.integer(substr(year15$Coverage_09[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_10[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_10[i], 6, 9))-as.integer(substr(year15$Coverage_10[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_11[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_11[i], 6, 9))-as.integer(substr(year15$Coverage_11[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_12[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_12[i], 6, 9))-as.integer(substr(year15$Coverage_12[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_13[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_13[i], 6, 9))-as.integer(substr(year15$Coverage_13[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_14[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_14[i], 6, 9))-as.integer(substr(year15$Coverage_14[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_15[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_15[i], 6, 9))-as.integer(substr(year15$Coverage_15[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+  if(nchar(year15$Coverage_16[i])==9){
+    year15$Years[i] <- year15$Years[i] + (as.integer(substr(year15$Coverage_16[i], 6, 9))-as.integer(substr(year15$Coverage_16[i], 1, 4)))
+  } else {
+    year15$Years[i] <- year15$Years[i] + 1
+  }
+}
+year15
+```
+
+```{r}
+# 16
+year16 <- cSplit(year16, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year16)){
+  if(nchar(year16$Coverage_01[i])==9){
+    year16$Years[i] <- as.integer(substr(year16$Coverage_01[i], 6, 9))-as.integer(substr(year16$Coverage_01[i], 1, 4))
+  } else {
+    year16$Years[i] <- 1
+  }
+  if(nchar(year16$Coverage_02[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_02[i], 6, 9))-as.integer(substr(year16$Coverage_02[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_03[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_03[i], 6, 9))-as.integer(substr(year16$Coverage_03[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_04[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_04[i], 6, 9))-as.integer(substr(year16$Coverage_04[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_05[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_05[i], 6, 9))-as.integer(substr(year16$Coverage_05[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_06[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_06[i], 6, 9))-as.integer(substr(year16$Coverage_06[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_07[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_07[i], 6, 9))-as.integer(substr(year16$Coverage_07[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_08[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_08[i], 6, 9))-as.integer(substr(year16$Coverage_08[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_09[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_09[i], 6, 9))-as.integer(substr(year16$Coverage_09[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_10[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_10[i], 6, 9))-as.integer(substr(year16$Coverage_10[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_11[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_11[i], 6, 9))-as.integer(substr(year16$Coverage_11[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_12[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_12[i], 6, 9))-as.integer(substr(year16$Coverage_12[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_13[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_13[i], 6, 9))-as.integer(substr(year16$Coverage_13[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_14[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_14[i], 6, 9))-as.integer(substr(year16$Coverage_14[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_15[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_15[i], 6, 9))-as.integer(substr(year16$Coverage_15[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_16[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_16[i], 6, 9))-as.integer(substr(year16$Coverage_16[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+  if(nchar(year16$Coverage_17[i])==9){
+    year16$Years[i] <- year16$Years[i] + (as.integer(substr(year16$Coverage_17[i], 6, 9))-as.integer(substr(year16$Coverage_17[i], 1, 4)))
+  } else {
+    year16$Years[i] <- year16$Years[i] + 1
+  }
+}
+year16
+```
+
+```{r}
+# 17
+year17 <- cSplit(year17, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year17)){
+  if(nchar(year17$Coverage_01[i])==9){
+    year17$Years[i] <- as.integer(substr(year17$Coverage_01[i], 6, 9))-as.integer(substr(year17$Coverage_01[i], 1, 4))
+  } else {
+    year17$Years[i] <- 1
+  }
+  if(nchar(year17$Coverage_02[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_02[i], 6, 9))-as.integer(substr(year17$Coverage_02[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_03[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_03[i], 6, 9))-as.integer(substr(year17$Coverage_03[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_04[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_04[i], 6, 9))-as.integer(substr(year17$Coverage_04[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_05[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_05[i], 6, 9))-as.integer(substr(year17$Coverage_05[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_06[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_06[i], 6, 9))-as.integer(substr(year17$Coverage_06[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_07[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_07[i], 6, 9))-as.integer(substr(year17$Coverage_07[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_08[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_08[i], 6, 9))-as.integer(substr(year17$Coverage_08[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_09[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_09[i], 6, 9))-as.integer(substr(year17$Coverage_09[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_10[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_10[i], 6, 9))-as.integer(substr(year17$Coverage_10[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_11[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_11[i], 6, 9))-as.integer(substr(year17$Coverage_11[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_12[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_12[i], 6, 9))-as.integer(substr(year17$Coverage_12[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_13[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_13[i], 6, 9))-as.integer(substr(year17$Coverage_13[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_14[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_14[i], 6, 9))-as.integer(substr(year17$Coverage_14[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_15[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_15[i], 6, 9))-as.integer(substr(year17$Coverage_15[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_16[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_16[i], 6, 9))-as.integer(substr(year17$Coverage_16[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_17[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_17[i], 6, 9))-as.integer(substr(year17$Coverage_17[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+  if(nchar(year17$Coverage_18[i])==9){
+    year17$Years[i] <- year17$Years[i] + (as.integer(substr(year17$Coverage_18[i], 6, 9))-as.integer(substr(year17$Coverage_18[i], 1, 4)))
+  } else {
+    year17$Years[i] <- year17$Years[i] + 1
+  }
+}
+year17
+```
+
+```{r}
+# 18
+year18 <- cSplit(year18, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year18)){
+  if(nchar(year18$Coverage_01[i])==9){
+    year18$Years[i] <- as.integer(substr(year18$Coverage_01[i], 6, 9))-as.integer(substr(year18$Coverage_01[i], 1, 4))
+  } else {
+    year18$Years[i] <- 1
+  }
+  if(nchar(year18$Coverage_02[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_02[i], 6, 9))-as.integer(substr(year18$Coverage_02[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_03[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_03[i], 6, 9))-as.integer(substr(year18$Coverage_03[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_04[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_04[i], 6, 9))-as.integer(substr(year18$Coverage_04[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_05[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_05[i], 6, 9))-as.integer(substr(year18$Coverage_05[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_06[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_06[i], 6, 9))-as.integer(substr(year18$Coverage_06[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_07[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_07[i], 6, 9))-as.integer(substr(year18$Coverage_07[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_08[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_08[i], 6, 9))-as.integer(substr(year18$Coverage_08[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_09[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_09[i], 6, 9))-as.integer(substr(year18$Coverage_09[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_10[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_10[i], 6, 9))-as.integer(substr(year18$Coverage_10[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_11[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_11[i], 6, 9))-as.integer(substr(year18$Coverage_11[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_12[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_12[i], 6, 9))-as.integer(substr(year18$Coverage_12[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_13[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_13[i], 6, 9))-as.integer(substr(year18$Coverage_13[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_14[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_14[i], 6, 9))-as.integer(substr(year18$Coverage_14[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_15[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_15[i], 6, 9))-as.integer(substr(year18$Coverage_15[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_16[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_16[i], 6, 9))-as.integer(substr(year18$Coverage_16[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_17[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_17[i], 6, 9))-as.integer(substr(year18$Coverage_17[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_18[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_18[i], 6, 9))-as.integer(substr(year18$Coverage_18[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+  if(nchar(year18$Coverage_19[i])==9){
+    year18$Years[i] <- year18$Years[i] + (as.integer(substr(year18$Coverage_19[i], 6, 9))-as.integer(substr(year18$Coverage_19[i], 1, 4)))
+  } else {
+    year18$Years[i] <- year18$Years[i] + 1
+  }
+}
+year18
+```
+
+```{r}
+# 20
+year20 <- cSplit(year20, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year20)){
+  if(nchar(year20$Coverage_01[i])==9){
+    year20$Years[i] <- as.integer(substr(year20$Coverage_01[i], 6, 9))-as.integer(substr(year20$Coverage_01[i], 1, 4))
+  } else {
+    year20$Years[i] <- 1
+  }
+  if(nchar(year20$Coverage_02[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_02[i], 6, 9))-as.integer(substr(year20$Coverage_02[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_03[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_03[i], 6, 9))-as.integer(substr(year20$Coverage_03[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_04[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_04[i], 6, 9))-as.integer(substr(year20$Coverage_04[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_05[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_05[i], 6, 9))-as.integer(substr(year20$Coverage_05[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_06[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_06[i], 6, 9))-as.integer(substr(year20$Coverage_06[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_07[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_07[i], 6, 9))-as.integer(substr(year20$Coverage_07[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_08[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_08[i], 6, 9))-as.integer(substr(year20$Coverage_08[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_09[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_09[i], 6, 9))-as.integer(substr(year20$Coverage_09[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_10[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_10[i], 6, 9))-as.integer(substr(year20$Coverage_10[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_11[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_11[i], 6, 9))-as.integer(substr(year20$Coverage_11[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_12[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_12[i], 6, 9))-as.integer(substr(year20$Coverage_12[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_13[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_13[i], 6, 9))-as.integer(substr(year20$Coverage_13[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_14[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_14[i], 6, 9))-as.integer(substr(year20$Coverage_14[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_15[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_15[i], 6, 9))-as.integer(substr(year20$Coverage_15[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_16[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_16[i], 6, 9))-as.integer(substr(year20$Coverage_16[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_17[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_17[i], 6, 9))-as.integer(substr(year20$Coverage_17[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_18[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_18[i], 6, 9))-as.integer(substr(year20$Coverage_18[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_19[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_19[i], 6, 9))-as.integer(substr(year20$Coverage_19[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_20[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_20[i], 6, 9))-as.integer(substr(year20$Coverage_20[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+  if(nchar(year20$Coverage_21[i])==9){
+    year20$Years[i] <- year20$Years[i] + (as.integer(substr(year20$Coverage_21[i], 6, 9))-as.integer(substr(year20$Coverage_21[i], 1, 4)))
+  } else {
+    year20$Years[i] <- year20$Years[i] + 1
+  }
+}
+year20
+```
+
+```{r}
+# 21
+year21 <- cSplit(year21, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year21)){
+  if(nchar(year21$Coverage_01[i])==9){
+    year21$Years[i] <- as.integer(substr(year21$Coverage_01[i], 6, 9))-as.integer(substr(year21$Coverage_01[i], 1, 4))
+  } else {
+    year21$Years[i] <- 1
+  }
+  if(nchar(year21$Coverage_02[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_02[i], 6, 9))-as.integer(substr(year21$Coverage_02[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_03[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_03[i], 6, 9))-as.integer(substr(year21$Coverage_03[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_04[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_04[i], 6, 9))-as.integer(substr(year21$Coverage_04[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_05[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_05[i], 6, 9))-as.integer(substr(year21$Coverage_05[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_06[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_06[i], 6, 9))-as.integer(substr(year21$Coverage_06[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_07[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_07[i], 6, 9))-as.integer(substr(year21$Coverage_07[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_08[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_08[i], 6, 9))-as.integer(substr(year21$Coverage_08[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_09[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_09[i], 6, 9))-as.integer(substr(year21$Coverage_09[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_10[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_10[i], 6, 9))-as.integer(substr(year21$Coverage_10[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_11[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_11[i], 6, 9))-as.integer(substr(year21$Coverage_11[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_12[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_12[i], 6, 9))-as.integer(substr(year21$Coverage_12[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_13[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_13[i], 6, 9))-as.integer(substr(year21$Coverage_13[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_14[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_14[i], 6, 9))-as.integer(substr(year21$Coverage_14[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_15[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_15[i], 6, 9))-as.integer(substr(year21$Coverage_15[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_16[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_16[i], 6, 9))-as.integer(substr(year21$Coverage_16[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_17[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_17[i], 6, 9))-as.integer(substr(year21$Coverage_17[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_18[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_18[i], 6, 9))-as.integer(substr(year21$Coverage_18[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_19[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_19[i], 6, 9))-as.integer(substr(year21$Coverage_19[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_20[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_20[i], 6, 9))-as.integer(substr(year21$Coverage_20[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_21[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_21[i], 6, 9))-as.integer(substr(year21$Coverage_21[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+  if(nchar(year21$Coverage_22[i])==9){
+    year21$Years[i] <- year21$Years[i] + (as.integer(substr(year21$Coverage_22[i], 6, 9))-as.integer(substr(year21$Coverage_22[i], 1, 4)))
+  } else {
+    year21$Years[i] <- year21$Years[i] + 1
+  }
+}
+year21
+```
+
+```{r}
+# 22
+year22 <- cSplit(year22, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year22)){
+  if(nchar(year22$Coverage_01[i])==9){
+    year22$Years[i] <- as.integer(substr(year22$Coverage_01[i], 6, 9))-as.integer(substr(year22$Coverage_01[i], 1, 4))
+  } else {
+    year22$Years[i] <- 1
+  }
+  if(nchar(year22$Coverage_02[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_02[i], 6, 9))-as.integer(substr(year22$Coverage_02[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_03[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_03[i], 6, 9))-as.integer(substr(year22$Coverage_03[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_04[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_04[i], 6, 9))-as.integer(substr(year22$Coverage_04[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_05[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_05[i], 6, 9))-as.integer(substr(year22$Coverage_05[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_06[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_06[i], 6, 9))-as.integer(substr(year22$Coverage_06[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_07[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_07[i], 6, 9))-as.integer(substr(year22$Coverage_07[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_08[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_08[i], 6, 9))-as.integer(substr(year22$Coverage_08[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_09[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_09[i], 6, 9))-as.integer(substr(year22$Coverage_09[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_10[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_10[i], 6, 9))-as.integer(substr(year22$Coverage_10[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_11[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_11[i], 6, 9))-as.integer(substr(year22$Coverage_11[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_12[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_12[i], 6, 9))-as.integer(substr(year22$Coverage_12[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_13[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_13[i], 6, 9))-as.integer(substr(year22$Coverage_13[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_14[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_14[i], 6, 9))-as.integer(substr(year22$Coverage_14[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_15[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_15[i], 6, 9))-as.integer(substr(year22$Coverage_15[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_16[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_16[i], 6, 9))-as.integer(substr(year22$Coverage_16[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_17[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_17[i], 6, 9))-as.integer(substr(year22$Coverage_17[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_18[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_18[i], 6, 9))-as.integer(substr(year22$Coverage_18[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_19[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_19[i], 6, 9))-as.integer(substr(year22$Coverage_19[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_20[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_20[i], 6, 9))-as.integer(substr(year22$Coverage_20[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_21[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_21[i], 6, 9))-as.integer(substr(year22$Coverage_21[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_22[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_22[i], 6, 9))-as.integer(substr(year22$Coverage_22[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+  if(nchar(year22$Coverage_23[i])==9){
+    year22$Years[i] <- year22$Years[i] + (as.integer(substr(year22$Coverage_23[i], 6, 9))-as.integer(substr(year22$Coverage_23[i], 1, 4)))
+  } else {
+    year22$Years[i] <- year22$Years[i] + 1
+  }
+}
+year22
+```
+
+```{r}
+# 24
+year24 <- cSplit(year24, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year24)){
+  if(nchar(year24$Coverage_01[i])==9){
+    year24$Years[i] <- as.integer(substr(year24$Coverage_01[i], 6, 9))-as.integer(substr(year24$Coverage_01[i], 1, 4))
+  } else {
+    year24$Years[i] <- 1
+  }
+  if(nchar(year24$Coverage_02[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_02[i], 6, 9))-as.integer(substr(year24$Coverage_02[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_03[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_03[i], 6, 9))-as.integer(substr(year24$Coverage_03[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_04[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_04[i], 6, 9))-as.integer(substr(year24$Coverage_04[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_05[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_05[i], 6, 9))-as.integer(substr(year24$Coverage_05[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_06[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_06[i], 6, 9))-as.integer(substr(year24$Coverage_06[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_07[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_07[i], 6, 9))-as.integer(substr(year24$Coverage_07[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_08[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_08[i], 6, 9))-as.integer(substr(year24$Coverage_08[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_09[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_09[i], 6, 9))-as.integer(substr(year24$Coverage_09[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_10[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_10[i], 6, 9))-as.integer(substr(year24$Coverage_10[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_11[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_11[i], 6, 9))-as.integer(substr(year24$Coverage_11[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_12[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_12[i], 6, 9))-as.integer(substr(year24$Coverage_12[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_13[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_13[i], 6, 9))-as.integer(substr(year24$Coverage_13[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_14[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_14[i], 6, 9))-as.integer(substr(year24$Coverage_14[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_15[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_15[i], 6, 9))-as.integer(substr(year24$Coverage_15[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_16[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_16[i], 6, 9))-as.integer(substr(year24$Coverage_16[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_17[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_17[i], 6, 9))-as.integer(substr(year24$Coverage_17[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_18[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_18[i], 6, 9))-as.integer(substr(year24$Coverage_18[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_19[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_19[i], 6, 9))-as.integer(substr(year24$Coverage_19[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_20[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_20[i], 6, 9))-as.integer(substr(year24$Coverage_20[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_21[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_21[i], 6, 9))-as.integer(substr(year24$Coverage_21[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_22[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_22[i], 6, 9))-as.integer(substr(year24$Coverage_22[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_23[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_23[i], 6, 9))-as.integer(substr(year24$Coverage_23[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_24[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_24[i], 6, 9))-as.integer(substr(year24$Coverage_24[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+  if(nchar(year24$Coverage_25[i])==9){
+    year24$Years[i] <- year24$Years[i] + (as.integer(substr(year24$Coverage_25[i], 6, 9))-as.integer(substr(year24$Coverage_25[i], 1, 4)))
+  } else {
+    year24$Years[i] <- year24$Years[i] + 1
+  }
+}
+year24
+```
+
+```{r}
+# 39
+year39 <- cSplit(year39, "Coverage", ",", type.convert = F)
+for (i in 1:nrow(year39)){
+  if(nchar(year39$Coverage_01[i])==9){
+    year39$Years[i] <- as.integer(substr(year39$Coverage_01[i], 6, 9))-as.integer(substr(year39$Coverage_01[i], 1, 4))
+  } else {
+    year39$Years[i] <- 1
+  }
+  if(nchar(year39$Coverage_02[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_02[i], 6, 9))-as.integer(substr(year39$Coverage_02[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_03[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_03[i], 6, 9))-as.integer(substr(year39$Coverage_03[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_04[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_04[i], 6, 9))-as.integer(substr(year39$Coverage_04[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_05[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_05[i], 6, 9))-as.integer(substr(year39$Coverage_05[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_06[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_06[i], 6, 9))-as.integer(substr(year39$Coverage_06[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_07[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_07[i], 6, 9))-as.integer(substr(year39$Coverage_07[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_08[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_08[i], 6, 9))-as.integer(substr(year39$Coverage_08[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_09[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_09[i], 6, 9))-as.integer(substr(year39$Coverage_09[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_10[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_10[i], 6, 9))-as.integer(substr(year39$Coverage_10[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_11[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_11[i], 6, 9))-as.integer(substr(year39$Coverage_11[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_12[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_12[i], 6, 9))-as.integer(substr(year39$Coverage_12[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_13[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_13[i], 6, 9))-as.integer(substr(year39$Coverage_13[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_14[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_14[i], 6, 9))-as.integer(substr(year39$Coverage_14[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_15[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_15[i], 6, 9))-as.integer(substr(year39$Coverage_15[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_16[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_16[i], 6, 9))-as.integer(substr(year39$Coverage_16[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_17[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_17[i], 6, 9))-as.integer(substr(year39$Coverage_17[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_18[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_18[i], 6, 9))-as.integer(substr(year39$Coverage_18[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_19[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_19[i], 6, 9))-as.integer(substr(year39$Coverage_19[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_20[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_20[i], 6, 9))-as.integer(substr(year39$Coverage_20[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_21[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_21[i], 6, 9))-as.integer(substr(year39$Coverage_21[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_22[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_22[i], 6, 9))-as.integer(substr(year39$Coverage_22[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_23[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_23[i], 6, 9))-as.integer(substr(year39$Coverage_23[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_24[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_24[i], 6, 9))-as.integer(substr(year39$Coverage_24[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_25[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_25[i], 6, 9))-as.integer(substr(year39$Coverage_25[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_26[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_26[i], 6, 9))-as.integer(substr(year39$Coverage_26[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_27[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_27[i], 6, 9))-as.integer(substr(year39$Coverage_27[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_28[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_28[i], 6, 9))-as.integer(substr(year39$Coverage_28[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_29[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_29[i], 6, 9))-as.integer(substr(year39$Coverage_29[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_30[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_30[i], 6, 9))-as.integer(substr(year39$Coverage_30[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_31[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_31[i], 6, 9))-as.integer(substr(year39$Coverage_31[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_32[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_32[i], 6, 9))-as.integer(substr(year39$Coverage_32[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_33[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_33[i], 6, 9))-as.integer(substr(year39$Coverage_33[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_34[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_34[i], 6, 9))-as.integer(substr(year39$Coverage_34[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_35[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_35[i], 6, 9))-as.integer(substr(year39$Coverage_35[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_36[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_36[i], 6, 9))-as.integer(substr(year39$Coverage_36[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_37[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_37[i], 6, 9))-as.integer(substr(year39$Coverage_37[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_38[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_38[i], 6, 9))-as.integer(substr(year39$Coverage_38[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_39[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_39[i], 6, 9))-as.integer(substr(year39$Coverage_39[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+  if(nchar(year39$Coverage_40[i])==9){
+    year39$Years[i] <- year39$Years[i] + (as.integer(substr(year39$Coverage_40[i], 6, 9))-as.integer(substr(year39$Coverage_40[i], 1, 4)))
+  } else {
+    year39$Years[i] <- year39$Years[i] + 1
+  }
+}
+year39
+```
+
+
+```{r}
+year0 <- year0[,c('Sourceid', 'Years')]
+year1 <- year1[,c('Sourceid', 'Years')]
+year2 <- year2[,c('Sourceid', 'Years')]
+year3 <- year3[,c('Sourceid', 'Years')]
+year4 <- year4[,c('Sourceid', 'Years')]
+year5 <- year5[,c('Sourceid', 'Years')]
+year6 <- year6[,c('Sourceid', 'Years')]
+year7 <- year7[,c('Sourceid', 'Years')]
+year8 <- year8[,c('Sourceid', 'Years')]
+year9 <- year9[,c('Sourceid', 'Years')]
+year10 <- year10[,c('Sourceid', 'Years')]
+year11 <- year11[,c('Sourceid', 'Years')]
+year12 <- year12[,c('Sourceid', 'Years')]
+year13 <- year13[,c('Sourceid', 'Years')]
+year14 <- year14[,c('Sourceid', 'Years')]
+year15 <- year15[,c('Sourceid', 'Years')]
+year16 <- year16[,c('Sourceid', 'Years')]
+year17 <- year17[,c('Sourceid', 'Years')]
+year18 <- year18[,c('Sourceid', 'Years')]
+year20 <- year20[,c('Sourceid', 'Years')]
+year21 <- year21[,c('Sourceid', 'Years')]
+year22 <- year22[,c('Sourceid', 'Years')]
+year24 <- year24[,c('Sourceid', 'Years')]
+year39 <- year39[,c('Sourceid', 'Years')]
+```
+
+```{r}
+years <- rbind(year0, year1, year2, year3, year4, year5, year6, year7, year8, year9,
+               year10, year11, year12, year13, year14, year15, year16, year17, year18,
+               year20, year21, year22, year24, year39)
+years
+```
+
+```{r}
+scimago_data <- scimago_data %>%
+  left_join(years, by='Sourceid')
+```
+
+```{r}
+scimago_data <- scimago_data[c('Rank', 'Sourceid', 'H.index', 'Total.Docs...3years.', 'Total.Refs.', 'Total.Cites..3years.',
+                              'Citable.Docs...3years.', 'Region', 'Years', 'SJR.Best.Quartile')]
+scimago_data
+```
+
+```{r}
+names(scimago_data) <- c('Rank', 'Id', 'H_index', 'Total_Docs', 'Total_Refs', 'Total_Cites', 'Cites_Docs', 'Region', 'Years', 'Quartile')
+scimago_data
+```
+
+```{r}
+scimago_data <- scimago_data[sample(1:nrow(scimago_data)), ]
+scimago_data
+```
+
+```{r}
+scimago_data <- na.omit(scimago_data)
+sum(is.na(scimago_data))
+```
+
+```{r}
+heatmap(cor(scimago_data[,c(-1, -2, -8, -10)]))
+cor(scimago_data[,c(-1, -2, -8, -10)])
+```
+
+```{r}
+scimago_data$Region <- as.factor(scimago_data$Region) 
+scimago_data$Quartile <- factor(scimago_data$Quartile, ordered = T, levels = c('Q4', 'Q3', 'Q2', 'Q1'))
+scimago_data
+```
+
+```{r}
+write.csv(scimago_data, file="scimago_dataset.csv", sep = ";")
+```
+
